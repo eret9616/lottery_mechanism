@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .rotate_con {
+            margin: 50px auto;
+            width: 320px;
+            height: 320px;
+            border: 1px solid #FFFFFF;
+            border-radius: 50%;
+        }
+
+        .rotate_row {
+            display: flex;
+            display: -webkit-flex;
+            height: 33.3333333%;
+        }
+
+        .rotate_item {
+            flex: 0 0 33.3333333%;
+            -webkit-flex: 0 0 33.3333333%;
+            line-height: 106.666666px;
+            text-align: center;
+            background: yellow;
+            padding: 1px;
+            border: 1px solid #fff;
+            box-sizing: border-box;
+        }
+
+        .item_start {
+            position: relative;
+            background-color: #FF5E5E;
+            color: #FFFFFF;
+            font-weight: bold;
+            cursor: pointer
+        }
+
+        .item_start:active {
+            background: #ED745B;
+        }
+
+        .rotate {
+            position: absolute;
+            width: 5px;
+            height: 106px;
+            top: -53px;
+            left: 53px;
+            background: #fff;
+
+            transform: rotateZ(0deg);
+            transform-origin: left bottom;
+
+            -webkit-transform-origin: left bottom;
+            transition: all 1.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        .item_active {
+            border-color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="rotate_con">
+        <div class="rotate_row">
+            <div class="rotate_item">
+                RMB100
+            </div>
+            <div class="rotate_item">
+                流量100M
+            </div>
+            <div class="rotate_item">
+                谢谢参与
+            </div>
+        </div>
+        <div class="rotate_row">
+            <div class="rotate_item">
+                再接再厉
+            </div>
+            <div class="rotate_item item_start" id="start">
+                开始
+                <!-- 指针 -->
+                <div class="rotate" id="rotate_zhen">
+                </div>
+            </div>
+            <div class="rotate_item">
+                RMB2
+            </div>
+        </div>
+        <div class="rotate_row">
+            <div class="rotate_item">
+                RMB100
+            </div>
+            <div class="rotate_item">
+                谢谢参与
+            </div>
+            <div class="rotate_item">
+                流量100M
+            </div>
+        </div>
+    </div>
+</body>
+
+
+<script>
+    /*
+        转盘抽奖原理
+        1.把奖盘分为8个区域，那么对应每个区域degree是360/8 = 45
+        2.给指针设置transition 和 roatateZ
+        3.抽奖的时候算出不同区域0~7间的一个随机数，计算出要rotateZ出的值,用js去改变css的RotateZ属性，就能转了
+        4.动画时间取决于transition的时间，提示是通过在js中通过setTimeout在时间后进行处理
+    */
+
+
+    //获取对象
+    var getid = function (id) {
+        return document.getElementById(id);
+    };
+
+
+
+    //按照旋转顺序的数组
+    var context = ["流量100M", "谢谢参与", "RMB2", "流量100M", "谢谢参与", "RMB100", "再接再厉", "RMB100"];
+
+
+    var deg = 45, //旋转的默认角度360/8      一共有八个块，所以对应一块是45度
+        numdeg = 0, //记录上次旋转停止时候的角度
+        num = 0, //记录旋转后数组的位置
+        isRotated = false; //判断是否在进行中
+
+
+    window.onload = function () {
+
+        var zhen = getid("rotate_zhen");
+
+        getid("start").addEventListener('click', function () {
+
+
+            if (isRotated) return; //如果正在旋转 不向下执行
+
+            // 开始旋转
+            isRotated = true;
+
+
+            // 第一步，假设有8个快，那么我就找出0到8这8个随机 的一个随机数
+            var index = Math.floor(Math.random() * 8); //得到0-7随机数
+
+            // num是上次数组的位置，记录本次数组的位置
+            num = index + num; //得到本次位置    
+
+
+
+            /*
+                0度对应的是第二个context中的第二个流量100M
+
+            */
+
+
+            numdeg += index * deg + 5 * 360  // index*deg就是最终要到达的位置，但是让转盘转起来我们要给他再加上几个回合
+
+            /*
+              // 这个是rotate的角度                     [1,4)                         
+              // numdeg += index * deg + Math.floor(Math.random() * 3 + 1) * 360;
+            */
+
+            // 通过transition
+            zhen.style.webkitTransform = zhen.style.transform = "rotateZ(" + numdeg + "deg)";
+
+            // 计时之后进行alert，这个时间略微大于transition的时间
+            setTimeout(function () {
+                if (num >= 8) { //如果数组位置大于7就重新开始
+                    num = num % 8;
+                }
+                alert(context[num]);
+                isRotated = false; //旋转改为false说明没有旋转
+            }, 1700)
+
+
+        }, false)
+    }
+
+</script>
+
+</html>
